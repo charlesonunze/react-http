@@ -2,18 +2,26 @@ import React, { Component } from "react";
 import axios from 'axios'
 import "./App.css";
 
+const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
+
 class App extends Component {
   state = {
     posts: []
   };
 
   async componentDidMount() {
-    const { data: posts } = await axios.get('https://jsonplaceholder.typicode.com/posts');
+    const { data: posts } = await axios.get(apiEndpoint);
     this.setState({ posts })
   }
 
-  handleAdd = () => {
-    console.log("Add");
+  handleAdd = async () => {
+    const data = {
+      body: "Body of the new post.",
+      title: "New Post",
+    }
+    const { data: post } = await axios.post(apiEndpoint, data)
+
+    this.setState({ posts: [post, ...this.state.posts] })
   };
 
   handleUpdate = post => {
@@ -39,8 +47,8 @@ class App extends Component {
             </tr>
           </thead>
           <tbody>
-            { this.state.posts.map(post => (
-              <tr key={ post.id }>
+            { this.state.posts.map((post, index) => (
+              <tr key={ index }>
                 <td>{ post.title }</td>
                 <td>
                   <button
