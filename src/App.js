@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import axios from 'axios'
 import "./App.css";
 
-const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
+const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts?userId=1';
 
 class App extends Component {
   state = {
@@ -25,7 +25,11 @@ class App extends Component {
   };
 
   handleUpdate = post => {
-    console.log("Update", post);
+    const posts = [...this.state.posts];
+    const index = posts.indexOf(post)
+    posts[index] = { ...post, title: 'Updated post' }
+
+    this.setState({ posts })
   };
 
   handleDelete = post => {
