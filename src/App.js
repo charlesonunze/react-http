@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import axios from 'axios'
 import "./App.css";
 
-const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts?userId=1';
+const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
 
 class App extends Component {
   state = {
@@ -24,11 +24,13 @@ class App extends Component {
     this.setState({ posts: [post, ...this.state.posts] })
   };
 
-  handleUpdate = post => {
+  handleUpdate = async (post) => {
     const posts = [...this.state.posts];
-    const index = posts.indexOf(post)
-    posts[index] = { ...post, title: 'Updated post' }
+    const index = posts.indexOf(post);
+    post.title = 'Updated post';
 
+    const { data: updatedPost } = await axios.put(`${apiEndpoint}/${post.id}`, post)
+    posts[index] = updatedPost
     this.setState({ posts })
   };
 
