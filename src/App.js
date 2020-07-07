@@ -45,7 +45,13 @@ class App extends Component {
       // Simulate an error
       throw new Error('ENTER THE SIMULATION');
     } catch (error) {
-      alert('Something bad happened. Post could not be deleted')
+      if (error.response && error.response.status === 404) {
+        alert('Post has already been deleted.')
+      } else {
+        console.log('Error log:', error);
+        alert('Something bad happened. Post could not be deleted.')
+      }
+
       this.setState({ posts: originalPosts })
     }
   };
