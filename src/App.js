@@ -1,17 +1,8 @@
 import React, { Component } from "react";
-import axios from 'axios'
+import httpService from "./services/httpService";
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import "./App.css";
-
-axios.interceptors.response.use(null, error => {
-  const expectedError = error.response && error.response.status >= 400 && error.response.status <= 500;
-
-  if (expectedError) {
-    console.log('Error log:', error);
-    alert('Something bad happened. Post could not be deleted.')
-  }
-
-  return Promise.reject(error);
-})
 
 const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
 
@@ -21,7 +12,7 @@ class App extends Component {
   };
 
   async componentDidMount() {
-    const { data: posts } = await axios.get(apiEndpoint);
+    const { data: posts } = await httpService.get(apiEndpoint);
     this.setState({ posts })
   }
 
@@ -30,9 +21,9 @@ class App extends Component {
       body: "Body of the new post.",
       title: "New Post",
     }
-    const { data: post } = await axios.post(apiEndpoint, data)
-
+    const { data: post } = await httpService.post(apiEndpoint, data)
     this.setState({ posts: [post, ...this.state.posts] })
+    toast("New post added!");
   };
 
   handleUpdate = async (post) => {
@@ -40,22 +31,24 @@ class App extends Component {
     const index = posts.indexOf(post);
     post.title = 'Updated post';
 
-    const { data: updatedPost } = await axios.put(`${apiEndpoint}/${post.id}`, post)
-    posts[index] = updatedPost
-    this.setState({ posts })
+    const { data: updatedPost } = await httpService.put(`${apiEndpoint}/${post.id}`, post);
+    posts[index] = updatedPost;
+    this.setState({ posts });
+    toast("Post updated!");
   };
 
   handleDelete = async (post) => {
     const originalPosts = this.state.posts;
 
     const posts = [...this.state.posts].filter((p) => p.id !== post.id);
-    this.setState({ posts })
+    this.setState({ posts });
+    toast("Post deleted!");
 
     try {
-      await axios.delete(`${apiEndpoint}/${post.id}ss`);
+      await httpService.delete(`${apiEndpoint}/${post.id}ss`);
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        alert('Post has already been deleted.')
+        toast('Post has already been deleted.')
       }
       this.setState({ posts: originalPosts })
     }
@@ -64,9 +57,12 @@ class App extends Component {
   render() {
     return (
       <React.Fragment>
+        <ToastContainer />
+
         <button className="btn btn-primary" onClick={ this.handleAdd }>
           Add
         </button>
+
         <table className="table">
           <thead>
             <tr>
@@ -75,6 +71,7 @@ class App extends Component {
               <th>Delete</th>
             </tr>
           </thead>
+
           <tbody>
             { this.state.posts.map((post, index) => (
               <tr key={ index }>
